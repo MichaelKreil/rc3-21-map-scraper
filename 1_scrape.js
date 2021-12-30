@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const canvas = require('canvas');
-const {resolve} = require('path');
+const { resolve } = require('path');
 const https = require('https');
 const child_process = require('child_process');
 const URL = require('url');
@@ -10,13 +10,17 @@ const {Image, createCanvas} = require('canvas');
 
 const cacheFetch = new Cache(resolve(__dirname, 'cache'));
 
+process.chdir(__dirname);
+fs.mkdirSync('data', { recursive:true });
+fs.mkdirSync('image', { recursive:true });
+
 const FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
 const FLIPPED_VERTICALLY_FLAG   = 0x40000000;
 const FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
 
 let links = [];
 let queue = new Queue();
-queue.add('https://visit.rc3.world/@/rc3_21/lobby/main.json');
+queue.add('https://static.rc3.world/maps/f4de6993dc781d242008/5f0cdf80-918e-4b66-8e62-1457b72679fb/main.json');
 
 run();
 
@@ -78,21 +82,27 @@ function Queue() {
 function fetch(url) {
 	let key = hashUrl(url);
 	return cacheFetch(key, () => {
-		// Everything is offline :(
-		return new Promise((resolve, reject) => reject());
 
 		console.log('   fetch', url);
 		return new Promise((resolve, reject) => {
 			https.get(url, {timeout:10*1000}, res => {
 				let buffers = [];
-				res.on('data', chunk => buffers.push(chunk));
+				res.on('data', chunk => {
+					buffers.push(chunk)
+				});
 				if (res.statusCode !== 200) {
 					console.log(url, res.statusCode, res.statusMessage);
 					return reject();
 				}
-				res.on('error', () => reject())
+				res.on('error', err => {
+					console.log('err', err);
+					reject(err)
+				})
 				res.on('end', () => resolve(Buffer.concat(buffers)));
-			}).on('error', () => reject())
+			}).on('error', err => {
+				console.log('err', err);
+				reject(err)
+			})
 		})
 	})
 }
