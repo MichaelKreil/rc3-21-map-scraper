@@ -262,15 +262,21 @@ async function generateScreenshot(baseUrl, data, slug) {
 		if (l.type === 'objectgroup') return false;
 		if (l.type === 'imagelayer') return false; // sorry
 
-		if (l.type !== 'tilelayer') {console.log(l); throw Error();}
-		if (l.height !== data.height) {console.log(l); throw Error();}
-		if (l.width !== data.width) {console.log(l); throw Error();}
-		if (l.x !== 0) {console.log(l); throw Error();}
-		if (l.y !== 0) {console.log(l); throw Error();}
-		if (!l.data) {console.log(l); throw Error();}
-		if (l.chunks) {console.log(l); throw Error();}
+		if (l.type !== 'tilelayer') error('l.type !== "tilelayer"');
+		if (l.height !== data.height) error('l.height !== data.height');
+		if (l.width !== data.width) error('l.width !== data.width');
+		if (l.x !== 0) error('l.x !== 0');
+		if (l.y !== 0) error('l.y !== 0');
+		if (!l.data) error('!l.data');
+		if (l.chunks) error('l.chunks');
 
 		return true;
+
+		function error(msg) {
+			console.log('l',l);
+			console.log('data',data);
+			throw Error(msg);
+		}
 	})
 
 	let canvas = createCanvas(data.width*32, data.height*32);
@@ -411,7 +417,7 @@ function scanForMapUrls(baseUrl, data) {
 				case 'exitsceneurl':
 					if ((l.x !== 0) || (l.y !== 0)) {
 						console.log(l);
-						throw Error();
+						//throw Error();
 					}
 
 					let url = URL.resolve(baseUrl, p.value);
