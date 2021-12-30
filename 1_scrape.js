@@ -20,32 +20,34 @@ const FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
 
 let links = [];
 let queue = new Queue();
-queue.add('https://static.rc3.world/maps/f4de6993dc781d242008/5f0cdf80-918e-4b66-8e62-1457b72679fb/main.json');
+queue.add('https://visit.rc3.world/@/rc3_21/lobby/main.json');
 
 run();
 
 async function run() {
 	while (!queue.empty()) {
-		let url = queue.next();
+		let roomUrl = queue.next();
 
-		let data = await fetch(url);
-		if (!data) continue;
+		let metaData = await fetch(`https://exneuland.rc3.world/map?playUri=${encodeURIComponent(roomUrl)}`);
+		let { mapUrl, roomSlug } = JSON.parse(metaData);
+		let mapData = await fetch(mapUrl);
+		if (!mapData) continue;
 
-		data = data.toString('utf8');
-		if (data.startsWith('<!doctype html>')) continue;
+		mapData = mapData.toString('utf8');
+		if (mapData.startsWith('<!doctype html>')) continue;
 
 		try {
-			data = JSON.parse(data);
+			mapData = JSON.parse(mapData);
 		} catch (e) {
-			console.log(data);
+			console.log(mapData);
 			console.log('SCRAPING PROBLEMS', e)
 			continue;
 		}
 
-		scanForMapUrls(url, data);
+		scanForMapUrls(roomUrl, mapData);
 
 		try {
-			await generateScreenshot(url, data);
+			await generateScreenshot(mapUrl, mapData, hashUrl(roomSlug));
 		} catch (e) {
 			console.log('SCREENSHOT PROBLEMS', e)
 			continue;
@@ -83,7 +85,7 @@ function fetch(url) {
 	let key = hashUrl(url);
 	return cacheFetch(key, () => {
 
-		console.log('   fetch', url);
+		//console.log('   fetch', url);
 		return new Promise((resolve, reject) => {
 			https.get(url, {timeout:10*1000}, res => {
 				let buffers = [];
@@ -124,9 +126,8 @@ function Cache(dir) {
 	}
 }
 
-async function generateScreenshot(baseUrl, data) {
-	let key = hashUrl(baseUrl);
-	let pngFilename = resolve(__dirname, 'image', key+'.png');
+async function generateScreenshot(baseUrl, data, slug) {
+	let pngFilename = resolve(__dirname, 'image', slug+'.png');
 
 	if (fs.existsSync(pngFilename)) return;
 	if (data.infinite) return;
@@ -374,6 +375,8 @@ function scanForMapUrls(baseUrl, data) {
 		if (!l.properties) return;
 		l.properties.forEach(p => {
 			switch (p.name.toLowerCase()) {
+				case 'audioloop':
+				case 'audiovolume':
 				case 'collide':
 				case 'collides':
 				case 'collision':
@@ -384,6 +387,7 @@ function scanForMapUrls(baseUrl, data) {
 				case 'jitsi':
 				case 'jitsiinstance':
 				case 'jitsiroom':
+				case 'jitsiroomadmintag':
 				case 'jitsiroomvizmain1':
 				case 'jitsitrigger':
 				case 'loop':
@@ -393,8 +397,8 @@ function scanForMapUrls(baseUrl, data) {
 				case 'playaudioloop':
 				case 'silent':
 				case 'start':
-				case 'startlayer':
 				case 'start_layer':
+				case 'startlayer':
 				case 'stew.one':
 				case 'wilkommen':
 				case 'xjitsitrigger':
@@ -403,12 +407,16 @@ function scanForMapUrls(baseUrl, data) {
 				return;
 				case 'exiturl':
 				case 'exitsceneurl':
-					let url = URL.resolve(baseUrl, p.value);
-					url = url.replace(/#.*/,'');
 					if ((l.x !== 0) || (l.y !== 0)) {
 						console.log(l);
 						throw Error();
 					}
+
+					let url = URL.resolve(baseUrl, p.value);
+					url = url.replace(/#.*/,'');
+
+					queue.add(url);
+
 					if (l.data) {
 						let xs = 0, ys = 0, s = 0;
 						l.data.forEach((c,i) => {
@@ -419,6 +427,7 @@ function scanForMapUrls(baseUrl, data) {
 						})
 						if (s > 0) mapLinks.push({url,hash:hashUrl(url),x:xs/s,y:ys/s});
 					}
+
 					if (l.chunks) {
 						l.chunks.forEach(chunk => {
 							let xs = 0, ys = 0, s = 0;
@@ -431,11 +440,9 @@ function scanForMapUrls(baseUrl, data) {
 							if (s > 0) mapLinks.push({url,hash:hashUrl(url),x:xs/s,y:ys/s});
 						})
 					}
-					queue.add(url);
 				break;
 				default:
-					console.log(p);
-					throw Error(p.name);
+					//console.log('unknown tag', p.name);
 			}
 		})
 	})
