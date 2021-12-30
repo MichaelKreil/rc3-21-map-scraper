@@ -29,6 +29,8 @@ async function run() {
 		let roomUrl = queue.next();
 
 		let metaData = await fetch(`https://exneuland.rc3.world/map?playUri=${encodeURIComponent(roomUrl)}`);
+		if (!metaData) continue;
+
 		let { mapUrl, roomSlug } = JSON.parse(metaData);
 		let mapData = await fetch(mapUrl);
 		if (!mapData) continue;
@@ -414,6 +416,7 @@ function scanForMapUrls(baseUrl, data) {
 
 					let url = URL.resolve(baseUrl, p.value);
 					url = url.replace(/#.*/,'');
+					//console.log(baseUrl, p.value, url);
 
 					queue.add(url);
 
