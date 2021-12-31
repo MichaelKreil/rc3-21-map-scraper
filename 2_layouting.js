@@ -12,7 +12,7 @@ nodes.forEach((n,i) => {
 	n.yc = 1000*(((Math.cos(i*7136+3.55)+5.45)*9445) % 2 - 1);
 	n.offsetX = n.width/2;
 	n.offsetY = n.height/2;
-	n.size = n.hash.includes('lobby_maps_at_rc3_world') ? 100 : 1;
+	n.size = n.hash.includes('rc3_21_lobby_main_json') ? 100 : 1;
 })
 
 nodes.forEach(n => {
@@ -32,7 +32,7 @@ nodes.forEach(n => {
 nodes = nodes.filter(n => n.use);
 
 
-let n = 100;
+const n = 100;
 
 console.log('\nstep 1/5');
 process.stdout.write('   ');
@@ -71,8 +71,8 @@ for (let i = 0; i < n; i++) {
 	for (let j = 0; j < 100; j++) step(0,1);
 }
 
-
-exportSVG();
+exportVRT();
+//exportSVG();
 
 nodes.forEach(n => {
 	n.links.forEach(l => {
@@ -83,29 +83,99 @@ nodes.forEach(n => {
 
 fs.writeFileSync('data/layout.json', JSON.stringify(nodes), 'utf8');
 
+function exportVRT() {
+	let x0 = 0;
+	let y0 = 0;
+	nodes.forEach(n => {
+		x0 += n.xc;
+		y0 += n.yc;
+	});
+	x0 /= nodes.length;
+	y0 /= nodes.length;
+
+	const size = 4096;
+	const zoom = 32;
+
+	let band1 = [];
+	let band2 = [];
+	let band3 = [];
+	nodes.forEach(n => {
+		let xi = Math.round(zoom*(n.xc - n.offsetX - x0 + size/2));
+		let yi = Math.round(zoom*(n.yc - n.offsetY - y0 + size/2));
+		let width  = Math.round(zoom*n.width);
+		let height = Math.round(zoom*n.height);
+		let file = n.slug+'.png';
+
+		if (!fs.existsSync('image/'+file)) return;
+
+		band1.push(`
+			<SimpleSource>
+				<SourceFilename relativeToVRT="1">${file}</SourceFilename>
+				<SourceBand>1</SourceBand>
+				<SourceProperties RasterYSize="${height}" DataType="Byte" BlockXSize="${width}" RasterXSize="${width}" BlockYSize="${height}"/>
+				<SrcRect xOff="0" yOff="0" xSize="${width}" ySize="${height}"/>
+				<DstRect xOff="${xi}" yOff="${yi}" xSize="${width}" ySize="${height}"/>
+			</SimpleSource>`
+		);
+		band2.push(`
+			<SimpleSource>
+				<SourceFilename relativeToVRT="1">${file}</SourceFilename>
+				<SourceBand>2</SourceBand>
+				<SourceProperties RasterYSize="${height}" DataType="Byte" BlockXSize="${width}" RasterXSize="${width}" BlockYSize="${height}"/>
+				<SrcRect xOff="0" yOff="0" xSize="${width}" ySize="${height}"/>
+				<DstRect xOff="${xi}" yOff="${yi}" xSize="${width}" ySize="${height}"/>
+			</SimpleSource>`
+		);
+		band3.push(`
+			<SimpleSource>
+				<SourceFilename relativeToVRT="1">${file}</SourceFilename>
+				<SourceBand>3</SourceBand>
+				<SourceProperties RasterYSize="${height}" DataType="Byte" BlockXSize="${width}" RasterXSize="${width}" BlockYSize="${height}"/>
+				<SrcRect xOff="0" yOff="0" xSize="${width}" ySize="${height}"/>
+				<DstRect xOff="${xi}" yOff="${yi}" xSize="${width}" ySize="${height}"/>
+			</SimpleSource>`
+		);
+	})
+
+
+	let vrt = (`
+	<VRTDataset rasterXSize="${size*zoom}" rasterYSize="${size*zoom}">
+		<SRS>PROJCS["WGS 84 / Pseudo-Mercator",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],PROJECTION["Mercator_1SP"],PARAMETER["central_meridian",0],PARAMETER["scale_factor",1],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],EXTENSION["PROJ4","+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs"],AUTHORITY["EPSG","3857"]]</SRS>
+		<GeoTransform>0.000000, 1, 0, 0.000000, 0, -1</GeoTransform>
+		<VRTRasterBand dataType="Byte" band="1">
+			${band1.join('\n')}	
+		</VRTRasterBand>
+		<VRTRasterBand dataType="Byte" band="2">
+			${band2.join('\n')}	
+		</VRTRasterBand>
+		<VRTRasterBand dataType="Byte" band="3">
+			${band3.join('\n')}	
+		</VRTRasterBand>
+	</VRTDataset>`);
+	fs.writeFileSync('image/map.vrt', vrt, 'utf8');
+}
+
 function exportSVG() {
 	let x0 = 0;
 	let y0 = 0;
 	nodes.forEach(n => {
 		x0 += n.xc;
 		y0 += n.yc;
-		if (!n.xc) console.log(n);
-		//console.log(n.xc, n.yc);
 	});
 	x0 /= nodes.length;
 	y0 /= nodes.length;
 
-	let size = 2000;
+	let size = 2048;
 	let svg = [];
 	svg.push('<?xml version="1.0" encoding="UTF-8" standalone="no"?>');
 	svg.push('<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">');
 	svg.push('<svg width="'+(2*size)+'" height="'+(2*size)+'" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">');
 	svg.push('<rect x="-10" y="-10" width="'+(size*2+20)+'" height="'+(size*2+20)+'" fill="black"/>')
 	nodes.forEach(n => {
-		n.xi = n.xc - n.offsetX + size - x0;
-		n.yi = n.yc - n.offsetY + size - y0;
+		n.xi = Math.round(32*(n.xc - n.offsetX + size - x0))/32;
+		n.yi = Math.round(32*(n.yc - n.offsetY + size - y0))/32;
 		//svg.push('<rect x="'+n.xi+'" y="'+n.yi+'" width="'+n.width+'" height="'+n.height+'" stroke="#F00" fill="rgba(0,255,0,0.1)"/>');
-		svg.push('<image x="'+n.xi+'" y="'+n.yi+'" width="'+n.width+'" height="'+n.height+'" xlink:href="http://localhost:8080/image/'+n.hash+'.png"/>');
+		svg.push('<image x="'+n.xi+'" y="'+n.yi+'" width="'+n.width+'" height="'+n.height+'" xlink:href="image/'+n.slug+'.png"/>');
 	})
 	nodes.forEach(n1 => {
 		n1.links.forEach(l => {
@@ -186,7 +256,9 @@ function step(strengthLink = 0, strengthNodes = 1) {
 function cleanupHash(hash) {
 	return hash.replace(/_+/g,'_');
 }
+
 function replaceHash(hash) {
+	return hash
 	switch (hash) {
 		case 'https_lobby_maps_at_rc3_world_maps_main_json': return 'https_lobby_maps_at_rc3_world_main_json';
 		case 'https_lobby_maps_at_rc3_world_maps_foyer_json': return 'https_lobby_maps_at_rc3_world_main_json';
