@@ -32,6 +32,7 @@ async function run() {
 		if (!metaData) continue;
 
 		let { mapUrl, roomSlug } = JSON.parse(metaData);
+		roomSlug = hashUrl(roomSlug);
 		let mapData = await fetch(mapUrl);
 		if (!mapData) continue;
 
@@ -46,10 +47,10 @@ async function run() {
 			continue;
 		}
 
-		scanForMapUrls(roomUrl, mapData);
+		scanForMapUrls(roomUrl, mapData, roomSlug);
 
 		try {
-			await generateScreenshot(mapUrl, mapData, hashUrl(roomSlug));
+			await generateScreenshot(mapUrl, mapData, roomSlug);
 		} catch (e) {
 			console.log('SCREENSHOT PROBLEMS', e)
 			continue;
@@ -376,7 +377,7 @@ async function generateScreenshot(baseUrl, data, slug) {
 	return
 }
 
-function scanForMapUrls(baseUrl, data) {
+function scanForMapUrls(baseUrl, data, slug) {
 	let mapLinks = [];
 	data.layers.forEach(l => {
 		if (!l) return;
@@ -460,6 +461,7 @@ function scanForMapUrls(baseUrl, data) {
 		height:data.height,
 		url:baseUrl,
 		hash:hashUrl(baseUrl),
+		slug:slug,
 		links:mapLinks,
 	})
 }
