@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<title>rc3 world map</title>
+	<script type="text/javascript" src="leaflet/leaflet.js"></script>
+	<link rel="stylesheet" type="text/css" href="leaflet/leaflet.css">
+	<style type="text/css">
+		html, body, #map {
+			margin: 0;
+			padding: 0;
+			width: 100vw;
+			height: 100vh;
+			background: #000;
+			color: #000;
+			user-select: none;
+		}
+
+		.leaflet-control-zoom a, .leaflet-control-attribution {
+		  background: rgba(0, 0, 0, 0.5) !important;
+		}
+
+		.leaflet-control a {
+			color: white !important;
+		}
+	</style>
+	<script type="text/javascript">
+		window.addEventListener('load', () => {
+			let map = L.map('map', {
+				center: [0,0],
+				zoom:5,
+				maxZoom:11,
+				maxBounds: [[-80,-120],[80,120]],
+				layers: [
+					L.tileLayer('tiles/{z}/{x}/{y}.png', {
+						noWrap:true,
+						tms:true,
+						detectRetina:false,
+						errorTileUrl:'tiles/black.png',
+						maxNativeZoom:9,
+						bounds: [[-80,-120],[80,120]],
+						attribution: '<a href="https://github.com/MichaelKreil/rc3-21-map-scraper">Code on GitHub</a>'
+					})
+				]
+			});
+			map.attributionControl.setPrefix('');
+		}, {once:true});
+	</script>
+</head>
+<body> 
+	<div id="map"></div>
+</body>
+</html>
