@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <TileMap version="1.0.0" tilemapservice="http://tms.osgeo.org/1.0.0">
+      <Title>map.tif</Title>
+      <Abstract></Abstract>
+      <SRS>PROJCS["WGS 84 / Pseudo-Mercator",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],PROJECTION["Mercator_1SP"],PARAMETER["central_meridian",0],PARAMETER["scale_factor",1],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],EXTENSION["PROJ4","+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs"],AUTHORITY["EPSG","3857"]]</SRS>
+      <BoundingBox minx="0.00000000000000" miny="-131072.00000000000000" maxx="131072.00000000000000" maxy="0.00000000000000"/>
+      <Origin x="0.00000000000000" y="-131072.00000000000000"/>
+      <TileFormat width="256" height="256" mime-type="image/png" extension="png"/>
+      <TileSets profile="raster">
+        <TileSet href="0" units-per-pixel="512.00000000000000" order="0"/>
+        <TileSet href="1" units-per-pixel="256.00000000000000" order="1"/>
+        <TileSet href="2" units-per-pixel="128.00000000000000" order="2"/>
+        <TileSet href="3" units-per-pixel="64.00000000000000" order="3"/>
+        <TileSet href="4" units-per-pixel="32.00000000000000" order="4"/>
+        <TileSet href="5" units-per-pixel="16.00000000000000" order="5"/>
+        <TileSet href="6" units-per-pixel="8.00000000000000" order="6"/>
+        <TileSet href="7" units-per-pixel="4.00000000000000" order="7"/>
+        <TileSet href="8" units-per-pixel="2.00000000000000" order="8"/>
+        <TileSet href="9" units-per-pixel="1.00000000000000" order="9"/>
+      </TileSets>
+    </TileMap>
+    
