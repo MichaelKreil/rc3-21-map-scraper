@@ -371,7 +371,7 @@ async function generateScreenshot(baseUrl, data, slug) {
 
 	fs.writeFileSync(pngFilename, canvas.toBuffer('image/png'));
 
-	child_process.execSync('optipng '+pngFilename, {stdio:'ignore'});
+	child_process.execSync('optipng -nc '+pngFilename, {stdio:'ignore'});
 
 	return
 }
