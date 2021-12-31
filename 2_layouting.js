@@ -106,7 +106,7 @@ function exportVRT() {
 		let height = Math.round(zoom*n.height);
 		let file = n.slug+'.png';
 
-		if (!fs.existsSync('image/'+file)) return;
+		if (!fs.existsSync('images/'+file)) return;
 
 		band1.push(`
 			<SimpleSource>
@@ -152,7 +152,7 @@ function exportVRT() {
 			${band3.join('\n')}	
 		</VRTRasterBand>
 	</VRTDataset>`);
-	fs.writeFileSync('image/map.vrt', vrt, 'utf8');
+	fs.writeFileSync('images/map.vrt', vrt, 'utf8');
 }
 
 function exportSVG() {
@@ -175,7 +175,7 @@ function exportSVG() {
 		n.xi = Math.round(32*(n.xc - n.offsetX + size - x0))/32;
 		n.yi = Math.round(32*(n.yc - n.offsetY + size - y0))/32;
 		//svg.push('<rect x="'+n.xi+'" y="'+n.yi+'" width="'+n.width+'" height="'+n.height+'" stroke="#F00" fill="rgba(0,255,0,0.1)"/>');
-		svg.push('<image x="'+n.xi+'" y="'+n.yi+'" width="'+n.width+'" height="'+n.height+'" xlink:href="image/'+n.slug+'.png"/>');
+		svg.push('<image x="'+n.xi+'" y="'+n.yi+'" width="'+n.width+'" height="'+n.height+'" xlink:href="images/'+n.slug+'.png"/>');
 	})
 	nodes.forEach(n1 => {
 		n1.links.forEach(l => {

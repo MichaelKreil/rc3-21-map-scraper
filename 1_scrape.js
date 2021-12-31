@@ -12,7 +12,7 @@ const cacheFetch = new Cache(resolve(__dirname, 'cache'));
 
 process.chdir(__dirname);
 fs.mkdirSync('data', { recursive:true });
-fs.mkdirSync('image', { recursive:true });
+fs.mkdirSync('images', { recursive:true });
 
 const FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
 const FLIPPED_VERTICALLY_FLAG   = 0x40000000;
@@ -130,7 +130,7 @@ function Cache(dir) {
 }
 
 async function generateScreenshot(baseUrl, data, slug) {
-	let pngFilename = resolve(__dirname, 'image', slug+'.png');
+	let pngFilename = resolve(__dirname, 'images', slug+'.png');
 
 	if (fs.existsSync(pngFilename)) return;
 	if (data.infinite) return;
