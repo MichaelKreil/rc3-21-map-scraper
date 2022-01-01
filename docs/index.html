@@ -28,8 +28,8 @@
 	<script type="text/javascript">
 		window.addEventListener('load', () => {
 			let map = L.map('map', {
-				center: [0,0],
-				zoom:5,
+				center: [33,12.4],
+				zoom:7,
 				maxZoom:11,
 				maxBounds: [[-80,-120],[80,120]],
 				layers: [
@@ -44,6 +44,7 @@
 					})
 				]
 			});
+			map.setZoom(map.getBoundsZoom([[32,11],[34,15]]));
 			map.attributionControl.setPrefix('');
 		}, {once:true});
 	</script>
