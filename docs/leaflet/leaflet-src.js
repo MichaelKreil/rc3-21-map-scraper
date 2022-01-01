@@ -2418,8 +2418,8 @@
 
   	el.style[TRANSFORM] =
   		(Browser.ie3d ?
-  			'translate(' + pos.x + 'px,' + pos.y + 'px)' :
-  			'translate3d(' + pos.x + 'px,' + pos.y + 'px,0)') +
+  			'translate(' + Math.round(pos.x) + 'px,' + Math.round(pos.y) + 'px)' :
+  			'translate3d(' + Math.round(pos.x) + 'px,' + Math.round(pos.y) + 'px,0)') +
   		(scale ? ' scale(' + scale + ')' : '');
   }
 
@@ -2436,8 +2436,8 @@
   	if (Browser.any3d) {
   		setTransform(el, point);
   	} else {
-  		el.style.left = point.x + 'px';
-  		el.style.top = point.y + 'px';
+  		el.style.left = Math.round(point.x) + 'px';
+  		el.style.top  = Math.round(point.y) + 'px';
   	}
   }
 
